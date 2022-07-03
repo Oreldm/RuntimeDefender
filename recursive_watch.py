@@ -2,8 +2,13 @@ import inotify.adapters
 
 
 def _main():
-    i = inotify.adapters.InotifyTree('/')
+    watcher('/home/orel')
+    watcher('/tmp')
+    watcher('/bin')
 
+
+def watcher(path: str):
+    i = inotify.adapters.InotifyTree(path)
     for event in i.event_gen():
         try:
             if event != None:
