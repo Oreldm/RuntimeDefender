@@ -2,8 +2,6 @@ import inotify.adapters
 
 
 def _main():
-    watcher('/home/orel')
-    watcher('/tmp')
     watcher('/bin')
 
 
