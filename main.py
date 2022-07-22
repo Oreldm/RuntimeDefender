@@ -1,5 +1,6 @@
-import os
-import subprocess
+from utils.settings import MAIN_PATH
+from utils.tools import Tools
+from utils.watcher import Watcher
 
 if __name__ == "__main__":
     """
@@ -22,6 +23,18 @@ if __name__ == "__main__":
             3. Seperate to client and server.
             4. Build GUI.
     """
+    tools = Tools()
+    output_binary = tools.terminal_command(f"ls {MAIN_PATH}")
+    output_str = output_binary.decode('ascii')
+    files_arr = output_str.split('\n')
+    files_dict = {}
+    for file in files_arr:
+        md5 = tools.terminal_command(f"md5sum {MAIN_PATH}/{file}")
+        if md5 is not None:
+            files_dict[file] = md5
 
-    output = subprocess.check_output("cat /etc/services", shell=True)
-    pass
+    watcher = Watcher()
+    while True:
+        events = watcher.watch()
+        for event in events:
+            print(f"FILE: {event.filename} TYPE: {event.event_type}")

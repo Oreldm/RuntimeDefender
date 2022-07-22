@@ -1,11 +1,13 @@
 import inotify.adapters
 
 from Models.event_model import EventModel
+from utils.settings import MAIN_PATH
 
 
 class Watcher:
 
-    def __init__(self, path_to_watch='/bin'):
+
+    def __init__(self, path_to_watch={MAIN_PATH}):
         self.events = []
         self.path_to_watch = path_to_watch
 
@@ -22,4 +24,5 @@ class Watcher:
                     self.events.append(EventModel(path, filename, event_type))
                 pass
             except:
-                return self.events
+                print("An exception while watching directory accured.")
+        return self.events
