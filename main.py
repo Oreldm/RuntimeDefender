@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 if __name__ == "__main__":
     """
@@ -21,6 +22,6 @@ if __name__ == "__main__":
             3. Seperate to client and server.
             4. Build GUI.
     """
-    a= os.system("ls -la")
-    print(f"a is {a}")
+
+    output = subprocess.check_output("cat /etc/services", shell=True)
     pass
