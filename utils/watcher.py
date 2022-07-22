@@ -6,8 +6,7 @@ from utils.settings import MAIN_PATH
 
 class Watcher:
 
-
-    def __init__(self, path_to_watch={MAIN_PATH}):
+    def __init__(self, path_to_watch=MAIN_PATH):
         self.events = []
         self.path_to_watch = path_to_watch
 
