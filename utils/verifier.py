@@ -86,6 +86,7 @@ class Verifier:
     # noinspection PyMethodMayBeStatic
     def verify_filesystem_event(self, events: list):
         for event in events:
+            event.path = event.path.replace('X11',"")
             if Watcher.EVENT_CREATE in event.event_type:
                 print(f"FILE {event.path}/{event.filename} has created")
             elif Watcher.EVENT_DELETE in event.event_type or Watcher.EVENT_MOVED_FROM in event.event_type:
