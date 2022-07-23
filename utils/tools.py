@@ -13,12 +13,17 @@ class Tools:
             if is_print_error:
                 print(f"Command {command} returned error exit code {e}")
 
+        if type(ret) is bytes:
+            try:
+                ret = ret.decode('ascii')
+            except:
+                if is_print_error:
+                    print("Wasn't able to convert binary to string")
         return ret
 
     def get_md5(self):
         files_dict = {}
-        output_binary = self.terminal_command(f"ls {MAIN_PATH}")
-        output_str = output_binary.decode('ascii')
+        output_str = self.terminal_command(f"ls {MAIN_PATH}")
         files_arr = output_str.split('\n')
         for file in files_arr:
             md5 = self.terminal_command(command=f"md5sum {MAIN_PATH}/{file}", is_print_error=False)
