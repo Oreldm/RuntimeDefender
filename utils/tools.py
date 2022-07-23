@@ -1,5 +1,5 @@
 import subprocess
-
+import requests
 from utils.settings import MAIN_PATH
 
 
@@ -25,3 +25,12 @@ class Tools:
             if md5 is not None:
                 files_dict[file] = md5
         return files_dict
+
+    def get_malware_feed(self):
+        malware_feed_url = "https://virusshare.com/hashes"
+        ret = requests.get(malware_feed_url)
+        try:
+            feed_len = len(ret.text.split("MD5 List Downloads:")[1].split("<p>")[0].split("</a>,"))
+        except:
+            feed_len = 429
+        return ret

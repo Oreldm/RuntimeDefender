@@ -16,7 +16,6 @@ class Watcher:
     EVENT_ACCESS = 'IN_ACCESS'
     EVENT_MODIFY = 'IN_MODIFY'
 
-
     def __init__(self, path_to_watch=MAIN_PATH):
         self.events = []
         self.path_to_watch = path_to_watch
