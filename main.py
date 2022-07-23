@@ -1,7 +1,6 @@
-from utils.settings import MAIN_PATH
 from utils.tools import Tools
-# from utils.verifier import Verifier
-# from utils.watcher import Watcher
+from utils.verifier import Verifier
+from utils.watcher import Watcher
 
 if __name__ == "__main__":
     """
@@ -24,15 +23,15 @@ if __name__ == "__main__":
             3. Separate to client and server.
             4. Build GUI.
     """
-    # verifier = Verifier()
+    verifier = Verifier()
     tools = Tools()
-    # watcher = Watcher()
-    tools.get_malware_feed()
+    watcher = Watcher()
+    files_dict = tools.get_md5()
 
-    # files_dict = tools.get_md5()
-    #
-    # while True:
-    #     events = watcher.watch()
-    #     verifier.verify_filesystem_event(events)
-    #     new_files_dict = tools.get_md5()
+    while True:
+        verifier.verify_malware_dict(files_dict)
+        events = watcher.watch()
+        verifier.verify_filesystem_event(events)
+        new_files_dict = tools.get_md5()
+
 

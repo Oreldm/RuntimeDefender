@@ -26,11 +26,26 @@ class Tools:
                 files_dict[file] = md5
         return files_dict
 
+    # noinspection PyMethodMayBeStatic
     def get_malware_feed(self):
-        malware_feed_url = "https://virusshare.com/hashes"
-        ret = requests.get(malware_feed_url)
+        all_md5 = []
+        malware_feed_url = "https://virusshare.com"
+        ret = requests.get(f"{malware_feed_url}/hashes")
         try:
-            feed_len = len(ret.text.split("MD5 List Downloads:")[1].split("<p>")[0].split("</a>,"))
+            feed_len = len(ret.text.split("MD5 List Downloads:")[1].split("<p>")[0].split("</a>,")) - 1
         except:
-            feed_len = 429
-        return ret
+            feed_len = 429  # The total number of pages at 23/7/2022
+
+        # Checking only in the first 2 pages of the feed because the feed is huge, so it will take a lot of time-
+        # If I had subscription I could search directly for the md5, but I don't have. This code is generic so once
+        # I will have subscription I can just delete the following line.
+        feed_len = 1
+
+        for i in range(0, feed_len):
+            page_num = f"{i}"
+            padding = "0" * (5 - len(page_num))
+            page_num = f"{padding}{page_num}"
+            url = f"{malware_feed_url}/hashfiles/VirusShare_{page_num}.md5"
+            ret = requests.get(url)
+            all_md5 = all_md5 + ret.text.split('\n')
+        return all_md5

@@ -32,5 +32,5 @@ class Watcher:
                 elif len(self.events) > 0:
                     break
             except:
-                print("An exception while watching directory accured.")
+                print("An exception while watching directory accrued.")
         return self.events
