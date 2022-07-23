@@ -21,6 +21,8 @@ class Watcher:
                     print("PATH=[{}] FILENAME=[{}] EVENT_TYPES={}".format(
                         path, filename, event_type))
                     self.events.append(EventModel(path, filename, event_type))
+                elif len(self.events) > 0:
+                    break
             except:
                 print("An exception while watching directory accured.")
         return self.events
