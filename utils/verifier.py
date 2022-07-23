@@ -35,7 +35,7 @@ class Verifier:
         :return:
         """
         list_of_suspicious_reverse_shell_spawn = ['/bin/bash -i', '/bin/sh -i', 'nc -nlvp', 'nc -e', '-e /bin/bash']
-        list_of_suspicious_files = ['bash', 'sh', 'nc', 'netcat', 'ncat']
+        list_of_suspicious_files = ['dash', 'bash', 'sh', 'nc', 'netcat', 'ncat']
         for event in events:
             if event.filename in list_of_suspicious_files:
                 ret = self.tools.terminal_command("ps -f")
