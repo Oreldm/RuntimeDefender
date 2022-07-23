@@ -26,21 +26,18 @@ if __name__ == "__main__":
     resources = []
     alerts = []
     while True:
-        try:
-            controller = RabbitMqController()
-            alerts.append(verifier.verify_malware_dict(files_dict))
-            for alert in alerts:
-                controller.send_alert(alert)
-            controller.connection.close()
-            events = watcher.watch()
-            alert_from_verifier, resources = verifier.verify_resources(resources)
-            alerts.append(alert_from_verifier)
-            alerts.append(verifier.verify_filesystem_event(events))
-            alerts.append(verifier.verify_cryptominer(events))
-            alerts.append(verifier.verify_reverse_shell(events))
-            alerts.append(verifier.verify_request())
-            files_dict = tools.get_md5()
-        except:
-            print("An error accrued, rerunning...")
+        controller = RabbitMqController()
+        alerts.append(verifier.verify_malware_dict(files_dict))
+        for alert in alerts:
+            controller.send_alert(alert)
+        controller.connection.close()
+        events = watcher.watch()
+        alert_from_verifier, resources = verifier.verify_resources(resources)
+        alerts.append(alert_from_verifier)
+        alerts.append(verifier.verify_filesystem_event(events))
+        alerts.append(verifier.verify_cryptominer(events))
+        alerts.append(verifier.verify_reverse_shell(events))
+        alerts.append(verifier.verify_request())
+        files_dict = tools.get_md5()
 
 
