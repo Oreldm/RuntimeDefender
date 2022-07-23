@@ -19,13 +19,12 @@ class Verifier:
                     print(f"{alert_message} Verified by name.")
                     return
                 full_path = f"{MAIN_PATH}/{event.filename}"
-                if full_path != "/bin/":
-                    ret = self.tools.terminal_command(f"strings {MAIN_PATH}/{event.filename}")
-                    ret = ret.split('\n')
-                    suspicious_strings = [x for x in ret if x.lower() in list_of_cryptominers_strings]
-                    if len(suspicious_strings) > 0:
-                        print(f"{alert_message} Verified by checking its inner strings.")
-                        return
+                ret = self.tools.terminal_command(f"strings {MAIN_PATH}/{event.filename}", is_print_error=False)
+                ret = ret.split('\n')
+                suspicious_strings = [x for x in ret if x.lower() in list_of_cryptominers_strings]
+                if len(suspicious_strings) > 0:
+                    print(f"{alert_message} Verified by checking its inner strings.")
+                    return
             except:
                 continue
 
