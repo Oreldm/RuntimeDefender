@@ -1,2 +1,4 @@
 inotify
 requests
+flask
+pika

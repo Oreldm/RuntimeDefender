@@ -1,3 +1,4 @@
+from Models.alert_model import Alert
 from Models.resource_model import ResourceModel
 from utils.settings import MAIN_PATH
 from utils.tools import Tools
@@ -9,31 +10,41 @@ class Verifier:
         self.feed_arr = None
         self.tools = Tools()
 
-    def verify_cryptominer(self, events: list):
+    def verify_cryptominer(self, events: list, is_print=True):
         list_of_cryptominers_strings = ['xmrig', 'cryptominer', 'crypto', 'miner', 'csminer', 'nbminer', 'xmr',
                                         'sonarlint', 'monero', 'randomx', 'turtle', 'coin']
+        alerts = []
         for event in events:
             try:
                 alert_message = f"File {event.filename} is a suspicious crypto miner."
                 if str(event.filename).lower() in list_of_cryptominers_strings:
-                    print(f"{alert_message} Verified by name.")
-                    return
+                    alert_str = f"{alert_message} Verified by name."
+                    if is_print:
+                        print(alert_str)
+                    else:
+                        alerts.append(Alert("CryptominerAlert",alert_str))
+                    return alerts
                 full_path = f"{MAIN_PATH}/{event.filename}"
-                ret = self.tools.terminal_command(f"strings {MAIN_PATH}/{event.filename}", is_print_error=False)
+                ret = self.tools.terminal_command(f"strings {full_path}", is_print_error=False)
                 ret = ret.split('\n')
                 suspicious_strings = [x for x in ret if x.lower() in list_of_cryptominers_strings]
                 if len(suspicious_strings) > 0:
-                    print(f"{alert_message} Verified by checking its inner strings.")
-                    return
+                    alert_str = f"{alert_message} Verified by checking its inner strings."
+                    if is_print:
+                        print(alert_str)
+                    else:
+                        alerts.append(Alert("CryptominerAlert",alert_str))
+                    return alerts
             except:
                 continue
 
-    def verify_reverse_shell(self, events: list):
+    def verify_reverse_shell(self, events: list, is_print=True):
         """
             This catch reverse shell and bind shell
         :param events:
         :return:
         """
+        alerts = []
         list_of_suspicious_reverse_shell_spawn = ['/bin/bash -i', '/bin/sh -i', 'nc -nlvp', 'nc -e', '-e /bin/bash']
         list_of_suspicious_files = ['dash', 'bash', 'sh', 'nc', 'netcat', 'ncat']
         for event in events:
@@ -41,23 +52,33 @@ class Verifier:
                 ret = self.tools.terminal_command("ps -ef")
                 reverse_shell_spawn = [x for x in list_of_suspicious_reverse_shell_spawn if x in ret]
                 if len(reverse_shell_spawn) > 0:
-                    print("Suspicious reverse shell on the machine. Check for these processes and close them if needed:"
-                          f" {reverse_shell_spawn}")
+                    alert_str = "Suspicious reverse shell on the machine. Check for these " \
+                                "processes and close them if needed: {reverse_shell_spawn}"
+                    if is_print:
+                        print(alert_str)
+                    else:
+                        alerts.append(Alert("ReverseShellAlert",alert_str))
+        return alerts
 
-    def verify_request(self):
+    def verify_request(self, is_print=True):
         """
         This function verify output request
         List of dengerous domain according to
         https://www.xfer.com/newsletter-content/10-of-the-most-dangerous-domains-on-the-web.html
         """
-        list_of_dangerous_domains= ['.zip','.review', '.country', '.kim', '.cricket','.sceince', '.work', 'party',
-                                    '.gq', '.link']
+        alerts = []
+        list_of_dangerous_domains = ['.zip', '.review', '.country', '.kim', '.cricket', '.sceince', '.work', 'party',
+                                     '.gq', '.link']
         ret = self.tools.terminal_command("timeout 2 tcpdump")
         danger_domains_arr = [x for x in list_of_dangerous_domains if x in ret]
         if len(danger_domains_arr) > 0:
-            print(f"Suspicious request! To the domain with acronym {danger_domains_arr}. Full tcpdump: {ret}")
+            alert_str = f"Suspicious request! To the domain with acronym {danger_domains_arr}. Full tcpdump: {ret}"
+            if is_print:
+                print(alert_str)
+        return alerts
 
-    def verify_resources(self, resources=[]):
+    def verify_resources(self, resources=[], is_print=True):
+        alerts = []
         if len(resources) > 9:
             cpu_usage = 0.0
             ram_usage = 0.0
@@ -67,8 +88,12 @@ class Verifier:
             cpu_medium = cpu_usage / 10
             ram_medium = ram_usage / 10
             if cpu_medium > 89.0 or ram_medium < 10.0:
-                print(f"Suspecioud Cryptominer on the machine. Look over your cpu/ram usage. Ram: {ram_medium}. "
-                      f"Cpu: {cpu_medium}")
+                alert_str = f"Suspecioud Cryptominer on the machine. Look over your cpu/ram usage. Ram: " \
+                            f"{ram_medium}. Cpu: {cpu_medium}"
+                if is_print:
+                    print(alert_str)
+                else:
+                    alerts.append(Alert("ResourcesAlert",alert_str))
             resources = [x for x in resources if x is not resources[0]]
 
         cpu_str = self.tools.terminal_command("grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END "
@@ -79,12 +104,18 @@ class Verifier:
         memory_str = memory_str.split()[1]
         memory_float = float(memory_str)
         resources.append(ResourceModel(cpu_float, memory_float))
-        return resources
+        return alerts, resources
 
-    def verify_malware_dict(self, files_md5_dict: dict):
+    def verify_malware_dict(self, files_md5_dict: dict, is_print=True):
+        alerts = []
         for file_name, md5 in files_md5_dict.items():
             if self.verify_malware(md5):
-                print(f"File {file_name} is a malware!")
+                alert_str = f"File {file_name} is a malware!"
+                if is_print:
+                    print(alert_str)
+                else:
+                    alerts.append(Alert("MalwareAlert", alert_str))
+        return alerts
 
     def verify_malware(self, md5: str):
         if self.feed_arr is None:
@@ -93,17 +124,40 @@ class Verifier:
         return md5 in self.feed_arr
 
     # noinspection PyMethodMayBeStatic
-    def verify_filesystem_event(self, events: list):
+    def verify_filesystem_event(self, events: list, is_print=True):
+        alerts = []
         for event in events:
             event.path = event.path.replace('/X11', "")
             if Watcher.EVENT_CREATE in event.event_type:
-                print(f"FILE {event.path}/{event.filename} has created")
+                alert_str = f"FILE {event.path}/{event.filename} has created"
+                if is_print:
+                    print(alert_str)
+                else:
+                    alerts.append(Alert("FilesystemAlert",alert_str))
             elif Watcher.EVENT_DELETE in event.event_type or Watcher.EVENT_MOVED_FROM in event.event_type:
-                print(f"FILE {event.path}/{event.filename} has deleted")
+                alert_str = f"FILE {event.path}/{event.filename} has deleted"
+                if is_print:
+                    print(alert_str)
+                else:
+                    alerts.append(Alert("FilesystemAlert",alert_str))
             elif Watcher.EVENT_CLOSE_WRITE in event.event_type or Watcher.EVENT_MODIFY in event.event_type:
-                print(f"FILE {event.path}/{event.filename} has been modified")
+                alert_str = f"FILE {event.path}/{event.filename} has been modified"
+                if is_print:
+                    print(alert_str)
+                else:
+                    alerts.append(Alert("FilesystemAlert",alert_str))
             elif (Watcher.EVENT_ACCESS in event.event_type or Watcher.EVENT_ACCESS in event.event_type) \
                     and 'sudo' == event.filename:
-                print(f"SUDO PERMISSION HAS BEEN ACCESSED")
+                alert_str = f"SUDO PERMISSION HAS BEEN ACCESSED"
+                if is_print:
+                    print(alert_str)
+                else:
+                    alerts.append(Alert("FilesystemAlert",alert_str))
             elif Watcher.EVENT_MOVED in event.event_type:
-                print(f"FILE {event.path}/{event.filename} has moved")
+                alert_str = f"FILE {event.path}/{event.filename} has moved"
+                if is_print:
+                    print(alert_str)
+                else:
+                    alerts.append(Alert("FilesystemAlert",alert_str))
+
+            return alerts

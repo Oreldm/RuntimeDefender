@@ -15,13 +15,8 @@ if __name__ == "__main__":
         9. Check if there is a reverse_shell
         10. do tcpdump, check if there is malicious ip / domain
         11. If one of the above is true: Write it to the screen.
-        
-        FORWARD:
-            1. EVERY 1 MIN add cpu usage for a map of ps. Check if something is weird (cryptominer). After 30min delete
+        12. EVERY 1 MIN add cpu usage for a map of ps. Check if something is weird (cryptominer). After 30min delete
             last one.
-            2. Do tcpdump in parallel, ps -a in parallel, and file changes in parallel.
-            3. Separate to client and server.
-            4. Build GUI.
     """
     verifier = Verifier()
     tools = Tools()
@@ -31,7 +26,7 @@ if __name__ == "__main__":
     while True:
         verifier.verify_malware_dict(files_dict)
         events = watcher.watch()
-        resources = verifier.verify_resources(resources)
+        _, resources = verifier.verify_resources(resources)
         verifier.verify_filesystem_event(events)
         verifier.verify_cryptominer(events)
         verifier.verify_reverse_shell(events)
