@@ -15,13 +15,13 @@ class Verifier:
             try:
                 alert_message = f"File {event.filename} is a suspicious crypto miner."
                 if str(event.filename).lower() in list_of_cryptominers_strings:
-                    print(f"{alert_message}. Verified by name.")
+                    print(f"{alert_message} Verified by name.")
                     return
                 ret = self.tools.terminal_command(f"strings {MAIN_PATH}/{event.filename}")
                 ret = ret.split('\n')
                 suspicious_strings = [x for x in ret if x.lower() in list_of_cryptominers_strings]
                 if len(suspicious_strings) > 0:
-                    print(f"{alert_message}. Verified by checking its inner strings.")
+                    print(f"{alert_message} Verified by checking its inner strings.")
                     return
             except:
                 continue

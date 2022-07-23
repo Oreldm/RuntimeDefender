@@ -33,6 +33,7 @@ class Tools:
 
     # noinspection PyMethodMayBeStatic
     def get_malware_feed(self):
+        print("LOADING MALWARE FEED... This can take up to 30 seconds")
         all_md5 = []
         malware_feed_url = "https://virusshare.com"
         ret = requests.get(f"{malware_feed_url}/hashes")
@@ -53,4 +54,5 @@ class Tools:
             url = f"{malware_feed_url}/hashfiles/VirusShare_{page_num}.md5"
             ret = requests.get(url)
             all_md5 = all_md5 + ret.text.split('\n')
+        print("Done Loading Malware Feed")
         return all_md5
