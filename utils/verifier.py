@@ -55,15 +55,15 @@ class Verifier:
             for resource in resources:
                 cpu_usage += resource.cpu
                 ram_usage += resource.memory
-            cpu_medium = cpu_usage/10
-            ram_medium = ram_usage/10
+            cpu_medium = cpu_usage / 10
+            ram_medium = ram_usage / 10
             if cpu_medium > 89.0 or ram_medium < 10.0:
                 print(f"Suspecioud Cryptominer on the machine. Look over your cpu/ram usage. Ram: {ram_medium}. "
                       f"Cpu: {cpu_medium}")
             resources = [x for x in resources if x is not resources[0]]
 
         cpu_str = self.tools.terminal_command("grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END "
-                                          "{print usage}'")
+                                              "{print usage}'")
         cpu_float = float(cpu_str)
 
         memory_str = self.tools.terminal_command("cat /proc/meminfo | grep MemFree")
@@ -86,7 +86,7 @@ class Verifier:
     # noinspection PyMethodMayBeStatic
     def verify_filesystem_event(self, events: list):
         for event in events:
-            event.path = event.path.replace('X11',"")
+            event.path = event.path.replace('/X11', "")
             if Watcher.EVENT_CREATE in event.event_type:
                 print(f"FILE {event.path}/{event.filename} has created")
             elif Watcher.EVENT_DELETE in event.event_type or Watcher.EVENT_MOVED_FROM in event.event_type:
