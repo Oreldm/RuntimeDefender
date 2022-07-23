@@ -32,6 +32,7 @@ if __name__ == "__main__":
         verifier.verify_malware_dict(files_dict)
         events = watcher.watch()
         verifier.verify_filesystem_event(events)
+        verifier.verify_cryptominer(events)
         files_dict = tools.get_md5()
 
 
