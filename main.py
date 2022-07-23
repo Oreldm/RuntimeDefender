@@ -27,7 +27,7 @@ if __name__ == "__main__":
     tools = Tools()
     watcher = Watcher()
     files_dict = tools.get_md5()
-
+    verifier.verify_reverse_shell([])
     while True:
         verifier.verify_malware_dict(files_dict)
         events = watcher.watch()
