@@ -27,17 +27,17 @@ if __name__ == "__main__":
     alerts = []
     while True:
         controller = RabbitMqController()
-        alerts.extend(verifier.verify_malware_dict(files_dict))
+        alerts.extend(verifier.verify_malware_dict(files_dict, is_send_to_rabbit=True))
         for alert in alerts:
             controller.send_alert(alert)
         controller.connection.close()
         events = watcher.watch()
-        alert_from_verifier, resources = verifier.verify_resources(resources)
+        alert_from_verifier, resources = verifier.verify_resources(resources, is_send_to_rabbit=True)
         alerts.extend(alert_from_verifier)
-        alerts.extend(verifier.verify_filesystem_event(events))
-        alerts.extend(verifier.verify_cryptominer(events))
-        alerts.extend(verifier.verify_reverse_shell(events))
-        alerts.extend(verifier.verify_request())
+        alerts.extend(verifier.verify_filesystem_event(events, is_send_to_rabbit=True))
+        alerts.extend(verifier.verify_cryptominer(events, is_send_to_rabbit=True))
+        alerts.extend(verifier.verify_reverse_shell(events, is_send_to_rabbit=True))
+        alerts.extend(verifier.verify_request(is_send_to_rabbit=True))
         files_dict = tools.get_md5()
 
 

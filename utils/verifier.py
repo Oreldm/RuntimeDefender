@@ -10,7 +10,7 @@ class Verifier:
         self.feed_arr = None
         self.tools = Tools()
 
-    def verify_cryptominer(self, events: list, is_print=True):
+    def verify_cryptominer(self, events: list, is_send_to_rabbit=False):
         list_of_cryptominers_strings = ['xmrig', 'cryptominer', 'crypto', 'miner', 'csminer', 'nbminer', 'xmr',
                                         'sonarlint', 'monero', 'randomx', 'turtle', 'coin']
         alerts = []
@@ -19,9 +19,8 @@ class Verifier:
                 alert_message = f"File {event.filename} is a suspicious crypto miner."
                 if str(event.filename).lower() in list_of_cryptominers_strings:
                     alert_str = f"{alert_message} Verified by name."
-                    if is_print:
-                        print(alert_str)
-                    else:
+                    print(alert_str)
+                    if is_send_to_rabbit:
                         alerts.append(Alert("CryptominerAlert",alert_str))
                     return alerts
                 full_path = f"{MAIN_PATH}/{event.filename}"
@@ -30,16 +29,15 @@ class Verifier:
                 suspicious_strings = [x for x in ret if x.lower() in list_of_cryptominers_strings]
                 if len(suspicious_strings) > 0:
                     alert_str = f"{alert_message} Verified by checking its inner strings."
-                    if is_print:
-                        print(alert_str)
-                    else:
+                    print(alert_str)
+                    if is_send_to_rabbit:
                         alerts.append(Alert("CryptominerAlert",alert_str))
                     return alerts
             except:
                 continue
         return alerts
 
-    def verify_reverse_shell(self, events: list, is_print=True):
+    def verify_reverse_shell(self, events: list, is_send_to_rabbit=False):
         """
             This catch reverse shell and bind shell
         :param events:
@@ -55,13 +53,12 @@ class Verifier:
                 if len(reverse_shell_spawn) > 0:
                     alert_str = "Suspicious reverse shell on the machine. Check for these " \
                                 "processes and close them if needed: {reverse_shell_spawn}"
-                    if is_print:
-                        print(alert_str)
-                    else:
+                    print(alert_str)
+                    if is_send_to_rabbit:
                         alerts.append(Alert("ReverseShellAlert",alert_str))
         return alerts
 
-    def verify_request(self, is_print=True):
+    def verify_request(self, is_send_to_rabbit=False):
         """
         This function verify output request
         List of dengerous domain according to
@@ -76,15 +73,14 @@ class Verifier:
                 danger_domains_arr = [x for x in list_of_dangerous_domains if x in ret]
                 if len(danger_domains_arr) > 0:
                     alert_str = f"Suspicious request! To the domain with acronym {danger_domains_arr}. Full tcpdump: {ret}"
-                    if is_print:
-                        print(alert_str)
-                    else:
+                    print(alert_str)
+                    if is_send_to_rabbit:
                         alerts.append(Alert("NetworkRequestAlert", alert_str))
         except:
             pass
         return alerts
 
-    def verify_resources(self, resources=[], is_print=True):
+    def verify_resources(self, resources=[], is_send_to_rabbit=False):
         alerts = []
         if len(resources) > 9:
             cpu_usage = 0.0
@@ -97,9 +93,8 @@ class Verifier:
             if cpu_medium > 89.0 or ram_medium < 10.0:
                 alert_str = f"Suspecioud Cryptominer on the machine. Look over your cpu/ram usage. Ram: " \
                             f"{ram_medium}. Cpu: {cpu_medium}"
-                if is_print:
-                    print(alert_str)
-                else:
+                print(alert_str)
+                if is_send_to_rabbit:
                     alerts.append(Alert("ResourcesAlert",alert_str))
             resources = [x for x in resources if x is not resources[0]]
 
@@ -113,14 +108,13 @@ class Verifier:
         resources.append(ResourceModel(cpu_float, memory_float))
         return alerts, resources
 
-    def verify_malware_dict(self, files_md5_dict: dict, is_print=True):
+    def verify_malware_dict(self, files_md5_dict: dict, is_send_to_rabbit=False):
         alerts = []
         for file_name, md5 in files_md5_dict.items():
             if self.verify_malware(md5):
                 alert_str = f"File {file_name} is a malware!"
-                if is_print:
-                    print(alert_str)
-                else:
+                print(alert_str)
+                if is_send_to_rabbit:
                     alerts.append(Alert("MalwareAlert", alert_str))
         return alerts
 
@@ -131,40 +125,35 @@ class Verifier:
         return md5 in self.feed_arr
 
     # noinspection PyMethodMayBeStatic
-    def verify_filesystem_event(self, events: list, is_print=True):
+    def verify_filesystem_event(self, events: list, is_send_to_rabbit=False):
         alerts = []
         for event in events:
             event.path = event.path.replace('/X11', "")
             if Watcher.EVENT_CREATE in event.event_type:
                 alert_str = f"FILE {event.path}/{event.filename} has created"
-                if is_print:
-                    print(alert_str)
-                else:
+                print(alert_str)
+                if is_send_to_rabbit:
                     alerts.append(Alert("FilesystemAlert",alert_str))
             elif Watcher.EVENT_DELETE in event.event_type or Watcher.EVENT_MOVED_FROM in event.event_type:
                 alert_str = f"FILE {event.path}/{event.filename} has deleted"
-                if is_print:
-                    print(alert_str)
-                else:
+                print(alert_str)
+                if is_send_to_rabbit:
                     alerts.append(Alert("FilesystemAlert",alert_str))
             elif Watcher.EVENT_CLOSE_WRITE in event.event_type or Watcher.EVENT_MODIFY in event.event_type:
                 alert_str = f"FILE {event.path}/{event.filename} has been modified"
-                if is_print:
-                    print(alert_str)
-                else:
+                print(alert_str)
+                if is_send_to_rabbit:
                     alerts.append(Alert("FilesystemAlert",alert_str))
             elif (Watcher.EVENT_ACCESS in event.event_type or Watcher.EVENT_ACCESS in event.event_type) \
                     and 'sudo' == event.filename:
                 alert_str = f"SUDO PERMISSION HAS BEEN ACCESSED"
-                if is_print:
-                    print(alert_str)
-                else:
+                print(alert_str)
+                if is_send_to_rabbit:
                     alerts.append(Alert("FilesystemAlert",alert_str))
             elif Watcher.EVENT_MOVED in event.event_type:
                 alert_str = f"FILE {event.path}/{event.filename} has moved"
-                if is_print:
-                    print(alert_str)
-                else:
+                print(alert_str)
+                if is_send_to_rabbit:
                     alerts.append(Alert("FilesystemAlert",alert_str))
 
         return alerts
