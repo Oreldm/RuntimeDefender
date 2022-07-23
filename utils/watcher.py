@@ -21,6 +21,7 @@ class Watcher:
         self.path_to_watch = path_to_watch
 
     def watch(self):
+        counter = 0
         self.events = []
         i = inotify.adapters.InotifyTree(self.path_to_watch)
         for event in i.event_gen():
@@ -30,6 +31,8 @@ class Watcher:
 
                     self.events.append(EventModel(path, filename, event_type))
                 elif len(self.events) > 0:
+                    break
+                elif event is None or len(self.events) < 1 and counter == 100:
                     break
             except:
                 print("An exception while watching directory accrued.")

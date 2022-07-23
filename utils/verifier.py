@@ -45,8 +45,17 @@ class Verifier:
                           f" {reverse_shell_spawn}")
 
     def verify_request(self):
-        """ This function verify output request """
-        pass
+        """
+        This function verify output request
+        List of dengerous domain according to
+        https://www.xfer.com/newsletter-content/10-of-the-most-dangerous-domains-on-the-web.html
+        """
+        list_of_dangerous_domains= ['.zip','.review', '.country', '.kim', '.cricket','.sceince', '.work', 'party',
+                                    '.gq', '.link']
+        ret = self.tools.terminal_command("timeout 2 tcpdump")
+        danger_domains_arr = [x for x in list_of_dangerous_domains if x in ret]
+        if len(danger_domains_arr) > 0:
+            print(f"Suspicious request! To the domain with acronym {danger_domains_arr}. Full tcpdump: {ret}")
 
     def verify_resources(self, resources=[]):
         if len(resources) > 9:

@@ -35,6 +35,7 @@ if __name__ == "__main__":
         verifier.verify_filesystem_event(events)
         verifier.verify_cryptominer(events)
         verifier.verify_reverse_shell(events)
+        verifier.verify_request()
         files_dict = tools.get_md5()
 
 
