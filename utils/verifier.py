@@ -71,7 +71,7 @@ class Verifier:
         try:
             list_of_dangerous_domains = ['.zip', '.review', '.country', '.kim', '.cricket', '.sceince', '.work', 'party',
                                          '.gq', '.link']
-            ret = self.tools.terminal_command("timeout 2 tcpdump")
+            ret = self.tools.terminal_command("timeout 2 tcpdump", is_print_error=False)
             if ret is not None:
                 danger_domains_arr = [x for x in list_of_dangerous_domains if x in ret]
                 if len(danger_domains_arr) > 0:
