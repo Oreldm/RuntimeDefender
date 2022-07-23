@@ -160,4 +160,4 @@ class Verifier:
                 else:
                     alerts.append(Alert("FilesystemAlert",alert_str))
 
-            return alerts
+        return alerts
