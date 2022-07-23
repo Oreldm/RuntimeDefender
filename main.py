@@ -27,12 +27,14 @@ if __name__ == "__main__":
     tools = Tools()
     watcher = Watcher()
     files_dict = tools.get_md5()
-    verifier.verify_reverse_shell([])
+    resources = []
     while True:
         verifier.verify_malware_dict(files_dict)
         events = watcher.watch()
+        resources = verifier.verify_resources(resources)
         verifier.verify_filesystem_event(events)
         verifier.verify_cryptominer(events)
+        verifier.verify_reverse_shell(events)
         files_dict = tools.get_md5()
 
 

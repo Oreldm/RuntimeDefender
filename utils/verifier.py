@@ -1,3 +1,4 @@
+from Models.resource_model import ResourceModel
 from utils.settings import MAIN_PATH
 from utils.tools import Tools
 from utils.watcher import Watcher
@@ -27,17 +28,48 @@ class Verifier:
                 continue
 
     def verify_reverse_shell(self, events: list):
+        """
+            This catch reverse shell and bind shell
+        :param events:
+        :return:
+        """
+        list_of_suspicious_reverse_shell_spawn = ['/bin/bash -i', '/bin/sh -i', 'nc -nlvp', 'nc -e', '-e /bin/bash']
+        list_of_suspicious_files = ['bash', 'sh', 'nc', 'netcat', 'ncat']
         for event in events:
-            if 'bash' in event.filename or 'sh' == event.filename:
-                ret = self.tools.terminal_command("ps -a")
-        pass
+            if event.filename in list_of_suspicious_files:
+                ret = self.tools.terminal_command("ps -f")
+                reverse_shell_spawn = [x for x in list_of_suspicious_reverse_shell_spawn if x in ret]
+                if len(reverse_shell_spawn) > 0:
+                    print("Suspicious reverse shell on the machine. Check for these processes and close them if needed:"
+                          f" {reverse_shell_spawn}")
 
     def verify_request(self):
         """ This function verify output request """
         pass
 
-    def verify_cpu(self):
-        pass
+    def verify_resources(self, resources=[]):
+        if len(resources) > 9:
+            cpu_usage = 0.0
+            ram_usage = 0.0
+            for resource in resources:
+                cpu_usage += resource.cpu
+                ram_usage += resource.memory
+            cpu_medium = cpu_usage/10
+            ram_medium = ram_usage/10
+            if cpu_medium > 89.0 or ram_medium < 10.0:
+                print(f"Suspecioud Cryptominer on the machine. Look over your cpu/ram usage. Ram: {ram_medium}. "
+                      f"Cpu: {cpu_medium}")
+            resources = [x for x in resources if x is not resources[0]]
+
+        cpu_str = self.tools.terminal_command("grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END "
+                                          "{print usage}'")
+        cpu_float = float(cpu_str)
+
+        memory_str = self.tools.terminal_command("cat /proc/meminfo | grep MemFree")
+        memory_str = memory_str.split()[1]
+        memory_float = float(memory_str)
+        resources.append(ResourceModel(cpu_float, memory_float))
+        return resources
 
     def verify_malware_dict(self, files_md5_dict: dict):
         for file_name, md5 in files_md5_dict.items():
