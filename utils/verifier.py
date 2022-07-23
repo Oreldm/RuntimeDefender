@@ -27,6 +27,9 @@ class Verifier:
                 continue
 
     def verify_reverse_shell(self, events: list):
+        for event in events:
+            if 'bash' in event.filename or 'sh' == event.filename:
+                ret = self.tools.terminal_command("ps -a")
         pass
 
     def verify_request(self):
@@ -35,7 +38,6 @@ class Verifier:
 
     def verify_cpu(self):
         pass
-
 
     def verify_malware_dict(self, files_md5_dict: dict):
         for file_name, md5 in files_md5_dict.items():
