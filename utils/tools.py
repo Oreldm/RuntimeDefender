@@ -5,12 +5,13 @@ from utils.settings import MAIN_PATH
 
 class Tools:
     # noinspection PyMethodMayBeStatic
-    def terminal_command(self, command: str):
+    def terminal_command(self, command: str, is_print_error=True):
         ret = None
         try:
             ret = subprocess.check_output(command, shell=True)
         except Exception as e:
-            print(f"Command {command} returned error exit code {e}")
+            if is_print_error:
+                print(f"Command {command} returned error exit code {e}")
 
         return ret
 
@@ -20,7 +21,7 @@ class Tools:
         output_str = output_binary.decode('ascii')
         files_arr = output_str.split('\n')
         for file in files_arr:
-            md5 = self.terminal_command(f"md5sum {MAIN_PATH}/{file}")
+            md5 = self.terminal_command(command=f"md5sum {MAIN_PATH}/{file}", is_print_error=False)
             if md5 is not None:
                 files_dict[file] = md5
         return files_dict
