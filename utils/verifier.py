@@ -38,7 +38,7 @@ class Verifier:
         list_of_suspicious_files = ['dash', 'bash', 'sh', 'nc', 'netcat', 'ncat']
         for event in events:
             if event.filename in list_of_suspicious_files:
-                ret = self.tools.terminal_command("ps -f")
+                ret = self.tools.terminal_command("ps -ef")
                 reverse_shell_spawn = [x for x in list_of_suspicious_reverse_shell_spawn if x in ret]
                 if len(reverse_shell_spawn) > 0:
                     print("Suspicious reverse shell on the machine. Check for these processes and close them if needed:"
