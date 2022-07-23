@@ -8,7 +8,7 @@ class Tools:
     def terminal_command(self, command: str, is_print_error=True):
         ret = None
         try:
-            ret = subprocess.check_output(command, shell=True)
+            ret = subprocess.check_output(command, shell=True, stderr=subprocess.DEVNULL)
         except Exception as e:
             if is_print_error:
                 print(f"Command {command} returned error exit code {e}")
