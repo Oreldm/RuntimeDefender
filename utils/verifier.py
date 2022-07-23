@@ -37,6 +37,7 @@ class Verifier:
                     return alerts
             except:
                 continue
+        return alerts
 
     def verify_reverse_shell(self, events: list, is_print=True):
         """
