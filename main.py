@@ -32,6 +32,6 @@ if __name__ == "__main__":
         verifier.verify_malware_dict(files_dict)
         events = watcher.watch()
         verifier.verify_filesystem_event(events)
-        new_files_dict = tools.get_md5()
+        files_dict = tools.get_md5()
 
 
