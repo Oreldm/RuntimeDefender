@@ -2,6 +2,10 @@ from utils.settings import MAIN_PATH
 from utils.tools import Tools
 from utils.watcher import Watcher
 
+
+
+
+
 if __name__ == "__main__":
     """
         1. Get all md5 of /bin
@@ -24,17 +28,15 @@ if __name__ == "__main__":
             4. Build GUI.
     """
     tools = Tools()
-    output_binary = tools.terminal_command(f"ls {MAIN_PATH}")
-    output_str = output_binary.decode('ascii')
-    files_arr = output_str.split('\n')
-    files_dict = {}
-    for file in files_arr:
-        md5 = tools.terminal_command(f"md5sum {MAIN_PATH}/{file}")
-        if md5 is not None:
-            files_dict[file] = md5
+    files_dict = tools.get_md5()
 
     watcher = Watcher()
     while True:
         events = watcher.watch()
+        new_files_dict = tools.get_md5()
         for event in events:
-            print(f"FILE: {event.filename} TYPE: {event.event_type}")
+            if new_files_dict != files_dict:
+                print(f"FILE {event.filename} has changed")
+                files_dict = new_files_dict
+
+            #print(f"FILE: {event.filename} TYPE: {event.event_type}")

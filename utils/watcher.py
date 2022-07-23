@@ -5,6 +5,17 @@ from utils.settings import MAIN_PATH
 
 
 class Watcher:
+    EVENT_OPEN = 'IN_OPEN'
+    EVENT_ACCESS = 'IN_ACCESS'
+    EVENT_CLOSE_NO_WRITE = 'IN_CLOSE_NOWRITE'
+    EVENT_CLOSE_WRITE = 'IN_CLOSE_WRITE'
+    EVENT_DELETE = 'IN_CLOSE_DELETE'
+    EVENT_MOVED_FROM = 'IN_MOVED_FROM'
+    EVENT_MOVED = 'IN_MOVED'
+    EVENT_CREATE = 'IN_CREATE'
+    EVENT_ACCESS = 'IN_ACCESS'
+    EVENT_MODIFY = 'IN_MODIFY'
+
 
     def __init__(self, path_to_watch=MAIN_PATH):
         self.events = []
@@ -18,8 +29,6 @@ class Watcher:
                 if event is not None:
                     (_, event_type, path, filename) = event
 
-                    print("PATH=[{}] FILENAME=[{}] EVENT_TYPES={}".format(
-                        path, filename, event_type))
                     self.events.append(EventModel(path, filename, event_type))
                 elif len(self.events) > 0:
                     break
