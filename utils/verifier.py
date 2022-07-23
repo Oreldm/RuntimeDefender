@@ -1,3 +1,4 @@
+from utils.settings import MAIN_PATH
 from utils.tools import Tools
 from utils.watcher import Watcher
 
@@ -11,16 +12,19 @@ class Verifier:
         list_of_cryptominers_strings = ['xmrig', 'cryptominer', 'crypto', 'miner', 'csminer', 'nbminer', 'xmr',
                                         'sonarlint', 'monero', 'randomx', 'turtle', 'coin']
         for event in events:
-            alert_message = f"File {event.filename} is a suspicious crypto miner."
-            if str(event.filename).lower() in list_of_cryptominers_strings:
-                print(f"{alert_message}. Verified by name.")
-                return
-            ret = self.tools.terminal_command(f"strings {event.filename}")
-            ret = ret.split('\n')
-            suspicious_strings = [x for x in ret if x.lower() in list_of_cryptominers_strings]
-            if len(suspicious_strings) > 0:
-                print(f"{alert_message}. Verified by checking its inner strings.")
-                return
+            try:
+                alert_message = f"File {event.filename} is a suspicious crypto miner."
+                if str(event.filename).lower() in list_of_cryptominers_strings:
+                    print(f"{alert_message}. Verified by name.")
+                    return
+                ret = self.tools.terminal_command(f"strings {MAIN_PATH}/{event.filename}")
+                ret = ret.split('\n')
+                suspicious_strings = [x for x in ret if x.lower() in list_of_cryptominers_strings]
+                if len(suspicious_strings) > 0:
+                    print(f"{alert_message}. Verified by checking its inner strings.")
+                    return
+            except:
+                continue
 
     def verify_reverse_shell(self, events: list):
         pass
