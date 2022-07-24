@@ -20,7 +20,7 @@ def index():
 })();
 </script>
 <meta charset="utf-8" />
-<title>Test</title>
+<title>Alert Server</title>
 </head>
 <body><span id="alert"><span></body>
 </html>""")
@@ -31,7 +31,8 @@ def getevents():
     """send current content"""
     controller = RabbitMqController()
     alert = controller.get_alert()
-    alert_str = f"Alert type: {alert.name} . Information: {alert.information}                                     "
+    alert_str = f'<br><p style="color:red;">Alert type:</p> {alert.name} . " \
+                                          "<p style="color:blue;">Information:</p> {alert.information} <br>'
     alerts.append(alert_str)
     alerts_str = '\n'.join(map(str, alerts))
     return alerts_str
