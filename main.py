@@ -1,36 +1,46 @@
-from utils.tools import Tools
-from utils.verifier import Verifier
-from utils.watcher import Watcher
+from flask import Flask, render_template_string
+
+from utils.rabbit_controller import RabbitMqController
+
+app = Flask(__name__)
+alerts = []
+
+@app.route("/")
+def index():
+    return render_template_string("""<!DOC html>
+<html>
+<head>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+<script type="text/javascript">
+(function worker() {
+  $.get('/getevents', function(getevents) {
+    $('#alert').html(getevents);    
+    setTimeout(worker, 1000); // run `worker()` again after 1000ms (1s)
+  });
+})();
+</script>
+<meta charset="utf-8" />
+<title>Alert Server</title>
+</head>
+<body><span id="alert"><span></body>
+</html>""")
+
+#<body>Latest Alert: <span id="alert"><span></body>
+@app.route('/getevents')
+def getevents():
+    """send current content"""
+    controller = RabbitMqController()
+    alert = controller.get_alert()
+    if alert is not None:
+        alert_str = f'<br><p style="color:red;">Alert type:</p> {alert.name} ' \
+                    f'<p style="color:blue;">Information:</p> {alert.information} <br>'
+        if len(alerts) is 6:
+            alerts.clear()
+        alerts.append(alert_str)
+        alerts_str = '\n'.join(map(str, alerts))
+    else:
+        alerts_str = '\n'.join(map(str, alerts))
+    return alerts_str
 
 if __name__ == "__main__":
-    """
-        1. Get all md5 of /bin
-        2. Watch changes in loop
-        3. Every change get list of events
-        4. Go over the event- find the file
-        5. Check if the file changed
-        6. Check if its cryptominer -> by strings/ filename. 
-        7. Check if the file is in a md5 database of malicious feed
-        8. do ps -a
-        9. Check if there is a reverse_shell
-        10. do tcpdump, check if there is malicious ip / domain
-        11. If one of the above is true: Write it to the screen.
-        12. EVERY 1 MIN add cpu usage for a map of ps. Check if something is weird (cryptominer). After 30min delete
-            last one.
-    """
-    verifier = Verifier()
-    tools = Tools()
-    watcher = Watcher()
-    files_dict = tools.get_md5()
-    resources = []
-    while True:
-        verifier.verify_malware_dict(files_dict)
-        events = watcher.watch()
-        _, resources = verifier.verify_resources(resources)
-        verifier.verify_filesystem_event(events)
-        verifier.verify_cryptominer(events)
-        verifier.verify_reverse_shell(events)
-        verifier.verify_request()
-        files_dict = tools.get_md5()
-
-
+    app.run(debug=True)
