@@ -34,7 +34,7 @@ def getevents():
     if alert is not None:
         alert_str = f'<br><p style="color:red;">Alert type:</p> {alert.name} ' \
                     f'<p style="color:blue;">Information:</p> {alert.information} <br>'
-        if len(alerts) is 6:
+        if len(alerts) == 6:
             alerts.clear()
         alerts.append(alert_str)
         alerts_str = '\n'.join(map(str, alerts))
@@ -43,4 +43,4 @@ def getevents():
     return alerts_str
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0",port=5000)
