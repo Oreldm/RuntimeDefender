@@ -31,10 +31,15 @@ def getevents():
     """send current content"""
     controller = RabbitMqController()
     alert = controller.get_alert()
-    alert_str = f'<br><p style="color:red;">Alert type:</p> {alert.name} . " \
-                                          "<p style="color:blue;">Information:</p> {alert.information} <br>'
-    alerts.append(alert_str)
-    alerts_str = '\n'.join(map(str, alerts))
+    if alert is not None:
+        alert_str = f'<br><p style="color:red;">Alert type:</p> {alert.name} ' \
+                    f'<p style="color:blue;">Information:</p> {alert.information} <br>'
+        if len(alerts) is 6:
+            alerts.clear()
+        alerts.append(alert_str)
+        alerts_str = '\n'.join(map(str, alerts))
+    else:
+        alerts_str = '\n'.join(map(str, alerts))
     return alerts_str
 
 if __name__ == "__main__":

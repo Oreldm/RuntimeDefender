@@ -37,10 +37,12 @@ class RabbitMqController:
 
     def get_alert(self):
         _, _, ret = self.channel.basic_get(queue=self.queue, auto_ack=True)
-        ret = ret.decode('ascii')
-        ret = ret.split(',')
-        name = ret[0].split('name:')[1]
-        information = ret[1].split('information:')[1].replace('}',"")
-        alert = Alert(name,information)
+        alert = None
+        if ret is not None:
+            ret = ret.decode('ascii')
+            ret = ret.split(',')
+            name = ret[0].split('name:')[1]
+            information = ret[1].split('information:')[1].replace('}',"")
+            alert = Alert(name,information)
         return alert
 
