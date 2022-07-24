@@ -28,6 +28,11 @@ class RabbitMqController:
         self.channel.queue_declare(queue=self.queue)
 
     def send_alert(self, alert: Alert):
+        """
+        Send an alert to RabbitMQ
+        :param alert: Alert obj
+        :return:
+        """
         self.channel.basic_publish(exchange='',
                               routing_key='alerts',
                               body="{"
@@ -36,6 +41,10 @@ class RabbitMqController:
                                    "}")
 
     def get_alert(self):
+        """
+        Get Alert from RabbitMQ
+        :return:
+        """
         _, _, ret = self.channel.basic_get(queue=self.queue, auto_ack=True)
         alert = None
         if ret is not None:

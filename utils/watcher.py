@@ -21,6 +21,10 @@ class Watcher:
         self.path_to_watch = path_to_watch
 
     def watch(self):
+        """
+        Watching over events in /bin
+        :return: Events Arr
+        """
         counter = 0
         self.events = []
         i = inotify.adapters.InotifyTree(self.path_to_watch)

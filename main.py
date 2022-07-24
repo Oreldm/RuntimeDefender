@@ -4,6 +4,9 @@ from utils.watcher import Watcher
 
 if __name__ == "__main__":
     """
+        This is the OnPrem Client!
+        No Need a server for this one!
+    
         1. Get all md5 of /bin
         2. Watch changes in loop
         3. Every change get list of events

@@ -5,6 +5,9 @@ from utils.watcher import Watcher
 
 if __name__ == "__main__":
     """
+        This is the SAAS Client!
+        Results will be under the server http://3.73.75.114:5000/
+    
         1. Get all md5 of /bin
         2. Watch changes in loop
         3. Every change get list of events

@@ -6,6 +6,12 @@ from utils.settings import MAIN_PATH
 class Tools:
     # noinspection PyMethodMayBeStatic
     def terminal_command(self, command: str, is_print_error=True):
+        """
+        Send command to terminal
+        :param command: string
+        :param is_print_error: is should print errout
+        :return: output
+        """
         ret = None
         try:
             ret = subprocess.check_output(command, shell=True, stderr=subprocess.DEVNULL)

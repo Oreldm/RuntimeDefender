@@ -11,6 +11,15 @@ class Verifier:
         self.tools = Tools()
 
     def verify_cryptominer(self, events: list, is_send_to_rabbit=False):
+        """
+        Verifying cryptominer by one of these strings/files -> inside the file and using its name:
+        'xmrig', 'cryptominer', 'crypto', 'miner', 'csminer', 'nbminer', 'xmr',
+                                        'sonarlint', 'monero', 'randomx', 'turtle', 'coin'
+
+        :param events: list of events
+        :param is_send_to_rabbit: is should send to rabbit
+        :return: Alerts arr
+        """
         list_of_cryptominers_strings = ['xmrig', 'cryptominer', 'crypto', 'miner', 'csminer', 'nbminer', 'xmr',
                                         'sonarlint', 'monero', 'randomx', 'turtle', 'coin']
         alerts = []
@@ -40,8 +49,8 @@ class Verifier:
     def verify_reverse_shell(self, events: list, is_send_to_rabbit=False):
         """
             This catch reverse shell and bind shell
-        :param events:
-        :return:
+        :param events: list of events
+        :return: Alerts arr
         """
         alerts = []
         list_of_suspicious_reverse_shell_spawn = ['/bin/bash -i', '/bin/sh -i', 'nc -nlvp', 'nc -e', '-e /bin/bash']
@@ -58,8 +67,10 @@ class Verifier:
     def verify_request(self, is_send_to_rabbit=False):
         """
         This function verify output request
-        List of dengerous domain according to
+        List of dangerous domain according to
         https://www.xfer.com/newsletter-content/10-of-the-most-dangerous-domains-on-the-web.html
+
+        I do here tcpdump for 2 seconds catch all requests and check if it has one of the domains that are dangerous
         """
         alerts = []
         try:
@@ -78,6 +89,13 @@ class Verifier:
         return alerts
 
     def verify_resources(self, resources=[], is_send_to_rabbit=False):
+        """
+        Verify if for 10 times we have high usage of cpu or memory.
+        If so - a cryptominer is suspected.
+        :param resources: resources array
+        :param is_send_to_rabbit: true/false
+        :return: Alerts , Resources touple
+        """
         alerts = []
         if len(resources) > 9:
             cpu_usage = 0.0
@@ -106,6 +124,12 @@ class Verifier:
         return alerts, resources
 
     def verify_malware_dict(self, files_md5_dict: dict, is_send_to_rabbit=False):
+        """
+        Test md5 of /bin infront of malware feed.
+        :param files_md5_dict: md5 dict of file,md5 of /bin
+        :param is_send_to_rabbit: True/False
+        :return: Alerts Arr
+        """
         alerts = []
         for file_name, md5 in files_md5_dict.items():
             if self.verify_malware(md5):
@@ -116,6 +140,11 @@ class Verifier:
         return alerts
 
     def verify_malware(self, md5: str):
+        """
+        Veriying if md5 is a malware
+        :param md5: string
+        :return: True/False
+        """
         if self.feed_arr is None:
             # Loading the feed to the memory only once
             self.feed_arr = self.tools.get_malware_feed()
@@ -123,6 +152,12 @@ class Verifier:
 
     # noinspection PyMethodMayBeStatic
     def verify_filesystem_event(self, events: list, is_send_to_rabbit=False):
+        """
+        Verify if there are changes in the filesystem (in /bin)
+        :param events: events arr
+        :param is_send_to_rabbit: True/False
+        :return: Alerts Arr
+        """
         alerts = []
         for event in events:
             event.path = event.path.replace('/X11', "")
