@@ -45,17 +45,14 @@ class Verifier:
         """
         alerts = []
         list_of_suspicious_reverse_shell_spawn = ['/bin/bash -i', '/bin/sh -i', 'nc -nlvp', 'nc -e', '-e /bin/bash']
-        list_of_suspicious_files = ['dash', 'bash', 'sh', 'nc', 'netcat', 'ncat']
-        for event in events:
-            if event.filename in list_of_suspicious_files:
-                ret = self.tools.terminal_command("ps -ef")
-                reverse_shell_spawn = [x for x in list_of_suspicious_reverse_shell_spawn if x in ret]
-                if len(reverse_shell_spawn) > 0:
-                    alert_str = "Suspicious reverse shell on the machine. Check for these " \
-                                f"processes and close them if needed: {reverse_shell_spawn}"
-                    print(alert_str)
-                    if is_send_to_rabbit:
-                        alerts.append(Alert("ReverseShellAlert",alert_str))
+        ret = self.tools.terminal_command("ps -ef")
+        reverse_shell_spawn = [x for x in list_of_suspicious_reverse_shell_spawn if x in ret]
+        if len(reverse_shell_spawn) > 0:
+            alert_str = "Suspicious reverse shell on the machine. Check for these " \
+                        f"processes and close them if needed: {reverse_shell_spawn}"
+            print(alert_str)
+            if is_send_to_rabbit:
+                alerts.append(Alert("ReverseShellAlert",alert_str))
         return alerts
 
     def verify_request(self, is_send_to_rabbit=False):
