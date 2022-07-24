@@ -30,6 +30,7 @@ if __name__ == "__main__":
         alerts.extend(verifier.verify_malware_dict(files_dict, is_send_to_rabbit=True))
         for alert in alerts:
             controller.send_alert(alert)
+        alerts = []
         controller.connection.close()
         events = watcher.watch()
         alert_from_verifier, resources = verifier.verify_resources(resources, is_send_to_rabbit=True)

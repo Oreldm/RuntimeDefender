@@ -3,6 +3,7 @@ from flask import Flask, render_template_string
 from utils.rabbit_controller import RabbitMqController
 
 app = Flask(__name__)
+alerts = []
 
 @app.route("/")
 def index():
@@ -21,16 +22,19 @@ def index():
 <meta charset="utf-8" />
 <title>Test</title>
 </head>
-<body>Latest Alert: <span id="alert"><span></body>
+<body><span id="alert"><span></body>
 </html>""")
 
-
+#<body>Latest Alert: <span id="alert"><span></body>
 @app.route('/getevents')
 def getevents():
     """send current content"""
     controller = RabbitMqController()
     alert = controller.get_alert()
-    return f"Alert type: {alert.name} . Information: {alert.information}"
+    alert_str = f"Alert type: {alert.name} . Information: {alert.information}                                     "
+    alerts.append(alert_str)
+    alerts_str = '\n'.join(map(str, alerts))
+    return alerts_str
 
 if __name__ == "__main__":
     app.run(debug=True)

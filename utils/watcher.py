@@ -32,7 +32,7 @@ class Watcher:
                     self.events.append(EventModel(path, filename, event_type))
                 elif len(self.events) > 0:
                     break
-                elif event is None or len(self.events) < 1 and counter == 1000000:
+                elif event is None or len(self.events) < 1 and counter == 1000000000:
                     break
             except:
                 print("An exception while watching directory accrued.")

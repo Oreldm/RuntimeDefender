@@ -52,7 +52,7 @@ class Verifier:
                 reverse_shell_spawn = [x for x in list_of_suspicious_reverse_shell_spawn if x in ret]
                 if len(reverse_shell_spawn) > 0:
                     alert_str = "Suspicious reverse shell on the machine. Check for these " \
-                                "processes and close them if needed: {reverse_shell_spawn}"
+                                f"processes and close them if needed: {reverse_shell_spawn}"
                     print(alert_str)
                     if is_send_to_rabbit:
                         alerts.append(Alert("ReverseShellAlert",alert_str))
